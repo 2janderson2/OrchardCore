@@ -10,9 +10,9 @@ pool:
   vmImage: 'windows-latest'
 
 #variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+#  solution: '**/*.sln'
+#  buildPlatform: 'Any CPU'
+#  buildConfiguration: 'Release'
 
 steps:
 # - task: NuGetToolInstaller@1
@@ -20,23 +20,44 @@ steps:
 # - task: NuGetCommand@2
 #   inputs:
 #     restoreSolution: '$(solution)'
-    
-- task: DotNetCoreCLI@2
-  displayName: "Update CycloneDX"
+
+- task: CmdLine@2
   inputs:
-    command: 'custom'
-    custom: 'tool'
-    arguments: 'install CycloneDX -g'
-    includeNuGetOrg: true
+    script: |
+      echo Installing CycloneDX
+      
+      dotnet tool install --global CycloneDX
+      
+      echo CycloneDX installed
+
+- task: CmdLine@2
+  inputs:
+    script: |
+      echo running Cyclonedx
+      
+      dotnet CycloneDX csharp/unit-testing/UnitTesting.sln -o cyclonedx-bom --disable-github-licenses
+      
+      echo CycloneDX Analysis Finished
+      
+      ls -ltar
+      
+      ls -ltar cyclonedx-bom
+#- task: DotNetCoreCLI@2
+#  displayName: "Update CycloneDX"
+#  inputs:
+#    command: 'custom'
+#    custom: 'tool'
+#    arguments: 'install CycloneDX -g'
+#    includeNuGetOrg: true
   
     
-- task: DotNetCoreCLI@2
-  displayName: "Generate CycloneDX SBOM"
-  inputs:
-    command: 'custom'
-    custom: 'CycloneDX'
-    arguments: 'WebGoat.NET.sln --out scan'
-    includeNuGetOrg: true
+#- task: DotNetCoreCLI@2
+#  displayName: "Generate CycloneDX SBOM"
+#  inputs:
+#    command: 'custom'
+#    custom: 'CycloneDX'
+#    arguments: 'WebGoat.NET.sln --out scan'
+#    includeNuGetOrg: true
 
 - task: NexusIqPipelineTask@1
   displayName: "IQ server"
