@@ -1,7 +1,7 @@
-# ASP.NET Core (.NET Framework)
-# Build and test ASP.NET Core projects targeting the full .NET Framework.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
 
 trigger:
 - main
@@ -15,20 +15,41 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- task: NuGetToolInstaller@1
+# - task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
+# - task: NuGetCommand@2
+#   inputs:
+#     restoreSolution: '$(solution)'
+    
+- task: DotNetCoreCLI@2
+  displayName: "Update CycloneDX"
   inputs:
-    restoreSolution: '$(solution)'
+    command: 'custom'
+    custom: 'tool'
+    arguments: 'update CycloneDX -g'
+    includeNuGetOrg: true
+  
+    
+- task: DotNetCoreCLI@2
+  displayName: "Generate CycloneDX SBOM"
+  inputs:
+    command: 'custom'
+    custom: 'CycloneDX'
+    arguments: 'WebGoat.NET.sln --out scan'
+    includeNuGetOrg: true
 
-- task: VSBuild@1
+- task: NexusIqPipelineTask@1
+  displayName: "IQ server"
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    nexusIqService: 'nexus'
+    applicationId: 'webgoat1'
+    stage: 'Build'
+    scanTargets: 'scan\*'
 
-- task: VSTest@2
+- task: PowerShell@2
+  displayName: "Results Output"
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    targetType: 'inline'
+    script: |
+      $results = Get-ChildItem "D:\a\_tasks\*\*\resources\evaluationResult.json" | Get-Content | ConvertTo-Json
+      Write-Host "Nexus Evaluation Results = $($results)"
