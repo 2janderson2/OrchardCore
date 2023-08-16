@@ -9,7 +9,7 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-variables:
+#variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
@@ -26,7 +26,7 @@ steps:
   inputs:
     command: 'custom'
     custom: 'tool'
-    arguments: 'update CycloneDX -g'
+    arguments: 'install CycloneDX -g'
     includeNuGetOrg: true
   
     
