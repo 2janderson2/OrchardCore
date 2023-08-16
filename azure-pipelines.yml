@@ -35,7 +35,7 @@ steps:
     script: |
       echo running Cyclonedx
       
-      dotnet CycloneDX csharp/unit-testing/UnitTesting.sln -o cyclonedx-bom --disable-github-licenses
+      dotnet CycloneDX OrchardCore.sln -o scan --disable-github-licenses
       
       echo CycloneDX Analysis Finished
       
