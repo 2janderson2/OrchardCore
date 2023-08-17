@@ -15,11 +15,6 @@ pool:
 #  buildConfiguration: 'Release'
 
 steps:
-# - task: NuGetToolInstaller@1
-
-# - task: NuGetCommand@2
-#   inputs:
-#     restoreSolution: '$(solution)'
 
 - task: CmdLine@2
   inputs:
@@ -42,28 +37,12 @@ steps:
       ls -ltar
       
       ls -ltar scan
-#- task: DotNetCoreCLI@2
-#  displayName: "Update CycloneDX"
-#  inputs:
-#    command: 'custom'
-#    custom: 'tool'
-#    arguments: 'install CycloneDX -g'
-#    includeNuGetOrg: true
-  
-    
-#- task: DotNetCoreCLI@2
-#  displayName: "Generate CycloneDX SBOM"
-#  inputs:
-#    command: 'custom'
-#    custom: 'CycloneDX'
-#    arguments: 'WebGoat.NET.sln --out scan'
-#    includeNuGetOrg: true
 
 - task: NexusIqPipelineTask@1
   displayName: "IQ server"
   inputs:
     nexusIqService: 'nexus'
-    applicationId: 'webgoat1'
+    applicationId: 'OrchardCore'
     stage: 'Build'
     scanTargets: 'scan\*'
 
