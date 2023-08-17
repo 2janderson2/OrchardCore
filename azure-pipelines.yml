@@ -41,7 +41,7 @@ steps:
       
       ls -ltar
       
-      ls -ltar cyclonedx-bom
+      ls -ltar scan
 #- task: DotNetCoreCLI@2
 #  displayName: "Update CycloneDX"
 #  inputs:
